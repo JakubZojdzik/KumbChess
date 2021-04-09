@@ -16,6 +16,7 @@ screen = pygame.display.set_mode((width, height))
 board = []  # p - pawn, r - rook, n - knight, b - bishop, q - queen, k - king, 0 - white, 1 - black
 board_sprite = Board()
 all_sprites = pygame.sprite.Group()
+selected = False
 
 
 def pos_to_cords(x, y):
@@ -84,6 +85,39 @@ def move(od, do):
             board[od[0]][od[1]] = ''
 
 
+def show_legal_moves(x, y):
+    color = board[x][y].model[1]
+    kind = board[x][y].model[0]
+    places = []
+    if kind == 'p':  # Pawn
+        if color == '0':  # White
+            if board[x-1][y] == '':
+                places.append((x-1, y))
+                if x == 6 and board[x-2][y]:
+                    places.append((x-2, y))
+
+            if x > 0 and y > 0 and board[x-1][y-1].model[1] == '1':
+                places.append((x-1, y-1))
+            if x > 0 and y < 7 and board[x-1][y+1].model[1] == '1':
+                places.append((x-1, y+1))
+        else:
+            if board[x+1][y] == '':
+                places.append((x+1, y))
+                if x == 1 and board[x+2][y]:
+                    places.append((x+2, y))
+
+            if y > 0 and board[x+1][y-1].model[1] == '0':
+                places.append((x+1, y-1))
+            if y < 7 and board[x+1][y+1].model[1] == '0':
+                places.append((x+1, y+1))
+
+    if kind == 'r':  # Rock
+        if color == '0':  # White
+            pass
+        else:
+            pass
+
+
 resetBoard()
 # Game loop.:
 while True:
@@ -93,6 +127,13 @@ while True:
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            x, y = event.pos
+            for i in range(8):
+                for j in range(8):
+                    if board[i][j] != '':
+                        if board[i][j].rect.collidepoint(x, y):
+                            print("Wcisniety", i, j)
 
     # Update.
     draw_board()
