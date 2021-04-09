@@ -77,6 +77,13 @@ def draw_board():
     all_sprites.draw(screen)
 
 
+def move(od, do):
+    if board[od[0]][od[1]] != '':
+        if board[do[0]][do[1]] == '' or board[do[0]][do[1]].model[1] != board[od[0]][od[1]].model[1]:
+            board[do[0]][do[1]] = board[od[0]][od[1]]
+            board[od[0]][od[1]] = ''
+
+
 resetBoard()
 # Game loop.:
 while True:
