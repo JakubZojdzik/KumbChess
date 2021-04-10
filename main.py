@@ -6,7 +6,7 @@ from piece import Board
 
 pygame.init()
 
-fps = 60
+fps = 200
 fpsClock = pygame.time.Clock()
 
 width, height = 800, 600
@@ -17,6 +17,8 @@ board = []  # p - pawn, r - rook, n - knight, b - bishop, q - queen, k - king, 0
 board_sprite = Board()
 all_sprites = pygame.sprite.Group()
 selected = False
+dot = pygame.image.load('img/dot.png').convert_alpha()
+dot_places = []
 
 
 def pos_to_cords(x, y):
@@ -73,16 +75,19 @@ def draw_board():
             if board[i][j] != '':
                 board[i][j].rect = board[i][j].image.get_rect(center=pos_to_cords(i, j))
                 all_sprites.add(board[i][j])
-
     all_sprites.update()
     all_sprites.draw(screen)
+    if selected:
+        for place in dot_places:
+            screen.blit(dot, (place[1]*64+144, place[0]*64+44))
 
 
 def move(od, do):
-    if board[od[0]][od[1]] != '':
-        if board[do[0]][do[1]] == '' or board[do[0]][do[1]].model[1] != board[od[0]][od[1]].model[1]:
-            board[do[0]][do[1]] = board[od[0]][od[1]]
-            board[od[0]][od[1]] = ''
+    if od != do:
+        if board[od[0]][od[1]] != '':
+            if board[do[0]][do[1]] == '' or board[do[0]][do[1]].model[1] != board[od[0]][od[1]].model[1]:
+                board[do[0]][do[1]] = board[od[0]][od[1]]
+                board[od[0]][od[1]] = ''
 
 
 def show_legal_moves(x, y):
@@ -91,31 +96,233 @@ def show_legal_moves(x, y):
     places = []
     if kind == 'p':  # Pawn
         if color == '0':  # White
-            if board[x-1][y] == '':
+            if board[x - 1][y] == '':
+                places.append((x - 1, y))
+                if x == 6 and board[x - 2][y] == '':
+                    places.append((x - 2, y))
+
+            if x > 0 and y > 0 and board[x - 1][y - 1] != '' and board[x - 1][y - 1].model[1] == '1':
+                places.append((x - 1, y - 1))
+            if x > 0 and y < 7 and board[x - 1][y + 1] != '' and board[x - 1][y + 1].model[1] == '1':
+                places.append((x - 1, y + 1))
+        else:  # Black
+            if board[x + 1][y] == '':
+                places.append((x + 1, y))
+                if x == 1 and board[x + 2][y] == '':
+                    places.append((x + 2, y))
+
+            if y > 0 and board[x + 1][y - 1] != '' and board[x + 1][y - 1].model[1] == '0':
+                places.append((x + 1, y - 1))
+            if y < 7 and board[x + 1][y + 1] != '' and board[x + 1][y + 1].model[1] == '0':
+                places.append((x + 1, y + 1))
+
+    elif kind == 'r':  # Rock
+        for i in range(x):
+            if board[x - i - 1][y] == '':
+                places.append((x - i - 1, y))
+            else:
+                if board[x - i - 1][y].model[1] != board[x][y].model[1]:
+                    places.append((x - i - 1, y))
+                break
+        for i in range(y):
+            if board[x][y - i - 1] == '':
+                places.append((x, y - i - 1))
+            else:
+                if board[x][y - i - 1].model[1] != board[x][y].model[1]:
+                    places.append((x, y - i - 1))
+                break
+
+        for i in range(7 - x):
+            if board[x + i + 1][y] == '':
+                places.append((x + i + 1, y))
+            else:
+                if board[x + i + 1][y].model[1] != board[x][y].model[1]:
+                    places.append((x + i + 1, y))
+                break
+        for i in range(7 - y):
+            if board[x][y + i + 1] == '':
+                places.append((x, y + i + 1))
+            else:
+                if board[x][y + i + 1].model[1] != board[x][y].model[1]:
+                    places.append((x, y + i + 1))
+                break
+
+    elif kind == 'n':  # Knight
+        # board[x-2][y-1], board[x-2][y+1], board[x-1][y+2], board[x+1][y+2], board[x+2][y+1], board[x+2][y-1], board[x+1][y-2], board[x-1][y-2]
+        if x >= 2 and y >= 1:
+            if board[x - 2][y - 1] == '' or board[x - 2][y - 1].model[1] != board[x][y].model[1]:
+                places.append((x - 2, y - 1))
+        if x >= 2 and y <= 6:
+            if board[x - 2][y + 1] == '' or board[x - 2][y + 1].model[1] != board[x][y].model[1]:
+                places.append((x - 2, y + 1))
+        if x >= 1 and y <= 5:
+            if board[x - 1][y + 2] == '' or board[x - 1][y + 2].model[1] != board[x][y].model[1]:
+                places.append((x - 1, y + 2))
+        if x <= 6 and y <= 5:
+            if board[x + 1][y + 2] == '' or board[x + 1][y + 2].model[1] != board[x][y].model[1]:
+                places.append((x + 1, y + 2))
+        if x <= 5 and y <= 6:
+            if board[x + 2][y + 1] == '' or board[x + 2][y + 1].model[1] != board[x][y].model[1]:
+                places.append((x + 2, y + 1))
+        if x <= 5 and y >= 1:
+            if board[x + 2][y - 1] == '' or board[x + 2][y - 1].model[1] != board[x][y].model[1]:
+                places.append((x + 2, y - 1))
+        if x <= 6 and y >= 2:
+            if board[x + 1][y - 2] == '' or board[x + 1][y - 2].model[1] != board[x][y].model[1]:
+                places.append((x + 1, y - 2))
+        if x >= 1 and y >= 2:
+            if board[x - 1][y - 2] == '' or board[x - 1][y - 2].model[1] != board[x][y].model[1]:
+                places.append((x - 1, y - 2))
+
+    elif kind == 'b':
+        for i in range(x):
+            if y >= i + 1:
+                if board[x - i - 1][y - i - 1] == '':
+                    places.append((x - i - 1, y - i - 1))
+                else:
+                    if board[x - i - 1][y - i - 1].model[1] != board[x][y].model[1]:
+                        places.append((x - i - 1, y - i - 1))
+                    break
+            else:
+                break
+
+        for i in range(x):
+            if y <= 6 - i:
+                if board[x - i - 1][y + i + 1] == '':
+                    places.append((x - i - 1, y + i + 1))
+                else:
+                    if board[x - i - 1][y + i + 1].model[1] != board[x][y].model[1]:
+                        places.append((x - i - 1, y + i + 1))
+                    break
+            else:
+                break
+
+        for i in range(7 - x):
+            if y >= i + 1:
+                if board[x + i + 1][y - i - 1] == '':
+                    places.append((x + i + 1, y - i - 1))
+                else:
+                    if board[x + i + 1][y - i - 1].model[1] != board[x][y].model[1]:
+                        places.append((x + i + 1, y - i - 1))
+                    break
+            else:
+                break
+
+        for i in range(7 - x):
+            if y <= 6 - i:
+                if board[x + i + 1][y + i + 1] == '':
+                    places.append((x + i + 1, y + i + 1))
+                else:
+                    if board[x + i + 1][y + i + 1].model[1] != board[x][y].model[1]:
+                        places.append((x + i + 1, y + i + 1))
+                    break
+            else:
+                break
+
+    elif kind == 'q':  # Queen
+        for i in range(x):
+            if board[x - i - 1][y] == '':
+                places.append((x - i - 1, y))
+            else:
+                if board[x - i - 1][y].model[1] != board[x][y].model[1]:
+                    places.append((x - i - 1, y))
+                break
+        for i in range(y):
+            if board[x][y - i - 1] == '':
+                places.append((x, y - i - 1))
+            else:
+                if board[x][y - i - 1].model[1] != board[x][y].model[1]:
+                    places.append((x, y - i - 1))
+                break
+
+        for i in range(7 - x):
+            if board[x + i + 1][y] == '':
+                places.append((x + i + 1, y))
+            else:
+                if board[x + i + 1][y].model[1] != board[x][y].model[1]:
+                    places.append((x + i + 1, y))
+                break
+        for i in range(7 - y):
+            if board[x][y + i + 1] == '':
+                places.append((x, y + i + 1))
+            else:
+                if board[x][y + i + 1].model[1] != board[x][y].model[1]:
+                    places.append((x, y + i + 1))
+                break
+
+        for i in range(x):
+            if y >= i + 1:
+                if board[x - i - 1][y - i - 1] == '':
+                    places.append((x - i - 1, y - i - 1))
+                else:
+                    if board[x - i - 1][y - i - 1].model[1] != board[x][y].model[1]:
+                        places.append((x - i - 1, y - i - 1))
+                    break
+            else:
+                break
+
+        for i in range(x):
+            if y <= 6 - i:
+                if board[x - i - 1][y + i + 1] == '':
+                    places.append((x - i - 1, y + i + 1))
+                else:
+                    if board[x - i - 1][y + i + 1].model[1] != board[x][y].model[1]:
+                        places.append((x - i - 1, y + i + 1))
+                    break
+            else:
+                break
+
+        for i in range(7 - x):
+            if y >= i + 1:
+                if board[x + i + 1][y - i - 1] == '':
+                    places.append((x + i + 1, y - i - 1))
+                else:
+                    if board[x + i + 1][y - i - 1].model[1] != board[x][y].model[1]:
+                        places.append((x + i + 1, y - i - 1))
+                    break
+            else:
+                break
+
+        for i in range(7 - x):
+            if y <= 6 - i:
+                if board[x + i + 1][y + i + 1] == '':
+                    places.append((x + i + 1, y + i + 1))
+                else:
+                    if board[x + i + 1][y + i + 1].model[1] != board[x][y].model[1]:
+                        places.append((x + i + 1, y + i + 1))
+                    break
+            else:
+                break
+
+    elif kind == 'k':  # King
+        if x >= 1:
+            if board[x-1][y] == '' or board[x-1][y].model[1] != board[x][y].model[1]:
                 places.append((x-1, y))
-                if x == 6 and board[x-2][y]:
-                    places.append((x-2, y))
+            if y >= 1:
+                if board[x-1][y-1] == '' or board[x-1][y-1].model[1] != board[x][y].model[1]:
+                    places.append((x-1, y-1))
+            if y <= 6:
+                if board[x-1][y+1] == '' or board[x-1][y+1].model[1] != board[x][y].model[1]:
+                    places.append((x-1, y+1))
 
-            if x > 0 and y > 0 and board[x-1][y-1].model[1] == '1':
-                places.append((x-1, y-1))
-            if x > 0 and y < 7 and board[x-1][y+1].model[1] == '1':
-                places.append((x-1, y+1))
-        else:
-            if board[x+1][y] == '':
+        if x <= 6:
+            if board[x+1][y] == '' or board[x+1][y].model[1] != board[x][y].model[1]:
                 places.append((x+1, y))
-                if x == 1 and board[x+2][y]:
-                    places.append((x+2, y))
+            if y >= 1:
+                if board[x+1][y-1] == '' or board[x+1][y-1].model[1] != board[x][y].model[1]:
+                    places.append((x+1, y-1))
+            if y <= 6:
+                if board[x+1][y+1] == '' or board[x+1][y+1].model[1] != board[x][y].model[1]:
+                    places.append((x+1, y+1))
 
-            if y > 0 and board[x+1][y-1].model[1] == '0':
-                places.append((x+1, y-1))
-            if y < 7 and board[x+1][y+1].model[1] == '0':
-                places.append((x+1, y+1))
+        if y >= 1:
+            if board[x][y-1] == '' or board[x][y-1].model[1] != board[x][y].model[1]:
+                places.append((x, y-1))
+        if y <= 6:
+            if board[x][y+1] == '' or board[x][y+1].model[1] != board[x][y].model[1]:
+                places.append((x, y+1))
 
-    if kind == 'r':  # Rock
-        if color == '0':  # White
-            pass
-        else:
-            pass
+    return places
 
 
 resetBoard()
@@ -129,15 +336,22 @@ while True:
             sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
-            for i in range(8):
-                for j in range(8):
-                    if board[i][j] != '':
-                        if board[i][j].rect.collidepoint(x, y):
-                            print("Wcisniety", i, j)
+            if not selected:
+                for i in range(8):
+                    for j in range(8):
+                        if board[i][j] != '':
+                            if board[i][j].rect.collidepoint(x, y):
+                                dot_places = show_legal_moves(i, j)
+                                if dot_places:
+                                    selected = True
+                                print("Wcisniety", i, j)
+
+            else:
+                selected = False
 
     # Update.
     draw_board()
     # Draw.
-    all_sprites.draw(screen)
+
     pygame.display.flip()
     fpsClock.tick(fps)
