@@ -20,6 +20,9 @@ all_sprites = pygame.sprite.Group()
 selected = 0
 dot_places = []
 dot_sprites = []
+is_white_moved = [False, False, False]  # 0 - king, 1 - rock on king's side, 2 - rock on queen'2 side
+is_black_moved = [False, False, False]
+turn = 0  # 0 - white, 1 - black
 
 
 def pos_to_cords(x, y):
@@ -27,7 +30,7 @@ def pos_to_cords(x, y):
 
 
 def cords_to_pos(x, y):
-    return int((y - 176) / 64)+2, int((x - 76) / 64)-1
+    return int((y - 44) / 64), int((x - 144) / 64)
 
 
 def resetBoard():
@@ -98,6 +101,19 @@ def move(od, do):
             if board[do[0]][do[1]] == '' or board[do[0]][do[1]].model[1] != board[od[0]][od[1]].model[1]:
                 board[do[0]][do[1]] = board[od[0]][od[1]]
                 board[od[0]][od[1]] = ''
+                if (not is_white_moved[0] and od == (7, 4)) or do == (7, 4):
+                    is_white_moved[0] = True
+                if (not is_white_moved[1] and od == (7, 7)) or do == (7, 7):
+                    is_white_moved[1] = True
+                if (not is_white_moved[2] and od == (7, 0)) or do == (7, 0):
+                    is_white_moved[2] = True
+
+                if (not is_white_moved[0] and od == (0, 4)) or do == (0, 4):
+                    is_white_moved[0] = True
+                if (not is_white_moved[1] and od == (0, 7)) or do == (0, 7):
+                    is_white_moved[1] = True
+                if (not is_white_moved[2] and od == (0, 0)) or do == (0, 0):
+                    is_white_moved[2] = True
 
 
 def show_legal_moves(x, y):
@@ -306,31 +322,45 @@ def show_legal_moves(x, y):
 
     elif kind == 'k':  # King
         if x >= 1:
-            if board[x-1][y] == '' or board[x-1][y].model[1] != board[x][y].model[1]:
-                places.append((x-1, y))
+            if board[x - 1][y] == '' or board[x - 1][y].model[1] != board[x][y].model[1]:
+                places.append((x - 1, y))
             if y >= 1:
-                if board[x-1][y-1] == '' or board[x-1][y-1].model[1] != board[x][y].model[1]:
-                    places.append((x-1, y-1))
+                if board[x - 1][y - 1] == '' or board[x - 1][y - 1].model[1] != board[x][y].model[1]:
+                    places.append((x - 1, y - 1))
             if y <= 6:
-                if board[x-1][y+1] == '' or board[x-1][y+1].model[1] != board[x][y].model[1]:
-                    places.append((x-1, y+1))
+                if board[x - 1][y + 1] == '' or board[x - 1][y + 1].model[1] != board[x][y].model[1]:
+                    places.append((x - 1, y + 1))
 
         if x <= 6:
-            if board[x+1][y] == '' or board[x+1][y].model[1] != board[x][y].model[1]:
-                places.append((x+1, y))
+            if board[x + 1][y] == '' or board[x + 1][y].model[1] != board[x][y].model[1]:
+                places.append((x + 1, y))
             if y >= 1:
-                if board[x+1][y-1] == '' or board[x+1][y-1].model[1] != board[x][y].model[1]:
-                    places.append((x+1, y-1))
+                if board[x + 1][y - 1] == '' or board[x + 1][y - 1].model[1] != board[x][y].model[1]:
+                    places.append((x + 1, y - 1))
             if y <= 6:
-                if board[x+1][y+1] == '' or board[x+1][y+1].model[1] != board[x][y].model[1]:
-                    places.append((x+1, y+1))
+                if board[x + 1][y + 1] == '' or board[x + 1][y + 1].model[1] != board[x][y].model[1]:
+                    places.append((x + 1, y + 1))
 
         if y >= 1:
-            if board[x][y-1] == '' or board[x][y-1].model[1] != board[x][y].model[1]:
-                places.append((x, y-1))
+            if board[x][y - 1] == '' or board[x][y - 1].model[1] != board[x][y].model[1]:
+                places.append((x, y - 1))
         if y <= 6:
-            if board[x][y+1] == '' or board[x][y+1].model[1] != board[x][y].model[1]:
-                places.append((x, y+1))
+            if board[x][y + 1] == '' or board[x][y + 1].model[1] != board[x][y].model[1]:
+                places.append((x, y + 1))
+
+        if board[x][y].model[1] == '0':
+            if not is_white_moved[0]:
+                if not is_white_moved[1] and board[7][5] == '' and board[7][6] == '':
+                    places.append((7, 6))
+                if not is_white_moved[2] and board[7][3] == '' and board[7][2] == '' and board[7][1] == '':
+                    places.append((7, 2))
+        else:
+            if not is_black_moved[0]:
+                if not is_black_moved[1] and board[0][5] == '' and board[0][6] == '':
+                    places.append((0, 6))
+                if not is_white_moved[2] and board[0][3] == '' and board[0][2] == '' and board[0][1] == '':
+                    places.append((0, 2))
+
 
     return places
 
@@ -349,17 +379,21 @@ while True:
             if selected == 0:
                 for i in range(8):
                     for j in range(8):
-                        if board[i][j] != '':
+                        if board[i][j] != '' and board[i][j].model[1] == str(turn):
                             if board[i][j].rect.collidepoint(x, y):
                                 dot_places = show_legal_moves(i, j)
                                 if dot_places:
                                     selected = (i, j)
+                                    print("selected", selected)
 
             else:
                 for sprite in dot_sprites:
                     if sprite.rect.collidepoint(x, y):
                         move(selected, cords_to_pos(sprite.x, sprite.y))
-                        print(sprite.x, sprite.y)
+                        if turn == 0:
+                            turn = 1
+                        else:
+                            turn = 0
                 selected = 0
 
     # Update.
