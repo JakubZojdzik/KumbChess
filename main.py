@@ -3,6 +3,7 @@ import pygame
 from pygame.locals import *
 from piece import Piece
 from piece import Board
+from piece import Mark
 
 pygame.init()
 
@@ -16,13 +17,17 @@ screen = pygame.display.set_mode((width, height))
 board = []  # p - pawn, r - rook, n - knight, b - bishop, q - queen, k - king, 0 - white, 1 - black
 board_sprite = Board()
 all_sprites = pygame.sprite.Group()
-selected = False
-dot = pygame.image.load('img/dot.png').convert_alpha()
+selected = 0
 dot_places = []
+dot_sprites = []
 
 
 def pos_to_cords(x, y):
     return 176 + 64 * y, 76 + 64 * x
+
+
+def cords_to_pos(x, y):
+    return int((y - 176) / 64)+2, int((x - 76) / 64)-1
 
 
 def resetBoard():
@@ -75,11 +80,16 @@ def draw_board():
             if board[i][j] != '':
                 board[i][j].rect = board[i][j].image.get_rect(center=pos_to_cords(i, j))
                 all_sprites.add(board[i][j])
+
+    if selected != 0:
+        dot_sprites.clear()
+        for place in dot_places:
+            dot_sprites.append(Mark(pos_to_cords(place[0], place[1])[0], pos_to_cords(place[0], place[1])[1]))
+        for sprite in dot_sprites:
+            all_sprites.add(sprite)
+
     all_sprites.update()
     all_sprites.draw(screen)
-    if selected:
-        for place in dot_places:
-            screen.blit(dot, (place[1]*64+144, place[0]*64+44))
 
 
 def move(od, do):
@@ -336,18 +346,21 @@ while True:
             sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
-            if not selected:
+            if selected == 0:
                 for i in range(8):
                     for j in range(8):
                         if board[i][j] != '':
                             if board[i][j].rect.collidepoint(x, y):
                                 dot_places = show_legal_moves(i, j)
                                 if dot_places:
-                                    selected = True
-                                print("Wcisniety", i, j)
+                                    selected = (i, j)
 
             else:
-                selected = False
+                for sprite in dot_sprites:
+                    if sprite.rect.collidepoint(x, y):
+                        move(selected, cords_to_pos(sprite.x, sprite.y))
+                        print(sprite.x, sprite.y)
+                selected = 0
 
     # Update.
     draw_board()

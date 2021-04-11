@@ -15,6 +15,7 @@ q1 = pygame.image.load('img/queen_black.png').convert_alpha()
 k0 = pygame.image.load('img/king_white.png').convert_alpha()
 k1 = pygame.image.load('img/king_black.png').convert_alpha()
 board_img = pygame.image.load('img/board.png').convert_alpha()
+dot = pygame.image.load('img/dot.png').convert_alpha()
 
 
 class Piece(pygame.sprite.Sprite):
@@ -56,3 +57,13 @@ class Board(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = board_img
         self.rect = self.image.get_rect(center=(400, 300))
+
+
+class Mark(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        pygame.sprite.Sprite.__init__(self)
+        self.x = x
+        self.y = y
+        self.image = dot
+        self.rect = self.image.get_rect(center=(x, y))
