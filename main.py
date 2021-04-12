@@ -2,8 +2,8 @@ import sys
 import pygame
 from pygame.locals import *
 from piece import Piece
-from piece import Board
-from piece import Mark
+from board import Board
+from mark import Mark
 
 pygame.init()
 
@@ -20,7 +20,7 @@ all_sprites = pygame.sprite.Group()
 selected = 0
 dot_places = []
 dot_sprites = []
-is_white_moved = [False, False, False]  # 0 - king, 1 - rock on king's side, 2 - rock on queen'2 side
+is_white_moved = [False, False, False]
 is_black_moved = [False, False, False]
 turn = 0  # 0 - white, 1 - black
 
@@ -93,27 +93,6 @@ def draw_board():
 
     all_sprites.update()
     all_sprites.draw(screen)
-
-
-def move(od, do):
-    if od != do:
-        if board[od[0]][od[1]] != '':
-            if board[do[0]][do[1]] == '' or board[do[0]][do[1]].model[1] != board[od[0]][od[1]].model[1]:
-                board[do[0]][do[1]] = board[od[0]][od[1]]
-                board[od[0]][od[1]] = ''
-                if (not is_white_moved[0] and od == (7, 4)) or do == (7, 4):
-                    is_white_moved[0] = True
-                if (not is_white_moved[1] and od == (7, 7)) or do == (7, 7):
-                    is_white_moved[1] = True
-                if (not is_white_moved[2] and od == (7, 0)) or do == (7, 0):
-                    is_white_moved[2] = True
-
-                if (not is_white_moved[0] and od == (0, 4)) or do == (0, 4):
-                    is_white_moved[0] = True
-                if (not is_white_moved[1] and od == (0, 7)) or do == (0, 7):
-                    is_white_moved[1] = True
-                if (not is_white_moved[2] and od == (0, 0)) or do == (0, 0):
-                    is_white_moved[2] = True
 
 
 def show_legal_moves(x, y):
@@ -361,12 +340,56 @@ def show_legal_moves(x, y):
                 if not is_white_moved[2] and board[0][3] == '' and board[0][2] == '' and board[0][1] == '':
                     places.append((0, 2))
 
-
     return places
+
+
+def move(od, do):
+    if od != do:
+        if board[od[0]][od[1]] != '':
+            if board[do[0]][do[1]] == '' or board[do[0]][do[1]].model[1] != board[od[0]][od[1]].model[1]:
+                board[do[0]][do[1]] = board[od[0]][od[1]]
+                board[od[0]][od[1]] = ''
+                if od == (7, 4) and do == (7, 6):
+                    board[7][5] = board[7][7]
+                    board[7][7] = ''
+                elif od == (7, 4) and do == (7, 2):
+                    board[7][3] = board[7][0]
+                    board[7][0] = ''
+                elif od == (0, 4) and do == (0, 6):
+                    board[0][5] = board[0][7]
+                    board[0][7] = ''
+                elif od == (0, 4) and do == (0, 2):
+                    board[0][3] = board[0][0]
+                    board[0][0] = ''
+                if (not is_white_moved[0] and od == (7, 4)) or do == (7, 4):
+                    is_white_moved[0] = True
+                if (not is_white_moved[1] and od == (7, 7)) or do == (7, 7):
+                    is_white_moved[1] = True
+                if (not is_white_moved[2] and od == (7, 0)) or do == (7, 0):
+                    is_white_moved[2] = True
+
+                if (not is_black_moved[0] and od == (0, 4)) or do == (0, 4):
+                    is_black_moved[0] = True
+                if (not is_black_moved[1] and od == (0, 7)) or do == (0, 7):
+                    is_black_moved[1] = True
+                if (not is_black_moved[2] and od == (0, 0)) or do == (0, 0):
+                    is_black_moved[2] = True
+
+
+def is_place_occupied(x, y, color):
+    for i in range(8):
+        for j in range(8):
+            if board[i][j] != '' and board[i][j].model[1] == color:
+                places = show_legal_moves(i, j)
+                if (x, y) in places:
+                    return True
+    return False
+
 
 
 resetBoard()
 # Game loop.:
+print(is_place_occupied(5, 5, '0'))
 while True:
     screen.fill((209, 170, 111))
 
@@ -390,6 +413,7 @@ while True:
                 for sprite in dot_sprites:
                     if sprite.rect.collidepoint(x, y):
                         move(selected, cords_to_pos(sprite.x, sprite.y))
+                        print(is_place_occupied(5, 5, 0))
                         if turn == 0:
                             turn = 1
                         else:
