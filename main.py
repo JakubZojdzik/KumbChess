@@ -360,15 +360,19 @@ def show_legal_moves(x, y):
         if board[x][y].model[1] == '0':
             if not is_white_moved[0]:
                 if not is_white_moved[1] and board[7][5] == '' and board[7][6] == '':
-                    places.append((7, 6))
+                    if (not is_place_occupied(7, 5, '1')) and (not is_place_occupied(7, 6, '1')):
+                        places.append((7, 6))
                 if not is_white_moved[2] and board[7][3] == '' and board[7][2] == '' and board[7][1] == '':
-                    places.append((7, 2))
+                    if (not is_place_occupied(7, 3, '1')) and (not is_place_occupied(7, 2, '1')) and (not is_place_occupied(7, 1, '1')):
+                        places.append((7, 2))
         else:
             if not is_black_moved[0]:
                 if not is_black_moved[1] and board[0][5] == '' and board[0][6] == '':
-                    places.append((0, 6))
+                    if (not is_place_occupied(0, 5, '0')) and (not is_place_occupied(0, 6, '0')):
+                        places.append((0, 6))
                 if not is_white_moved[2] and board[0][3] == '' and board[0][2] == '' and board[0][1] == '':
-                    places.append((0, 2))
+                    if (not is_place_occupied(0, 3, '0')) and (not is_place_occupied(0, 2, '0')) and (not is_place_occupied(0, 1, '0')):
+                        places.append((0, 2))
 
     return places
 
@@ -602,8 +606,6 @@ def is_place_occupied(r, t, color):
                         else:
                             break
 
-    # print(plac)
-    print((r, t), (r, t) in plac)
     return (r, t) in plac
 
 
