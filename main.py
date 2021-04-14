@@ -38,7 +38,7 @@ def king_pos(color):
     if color == '0':
         return white_king
     else:
-        return  black_king
+        return black_king
 
 
 def pos_to_cords(x, y):
@@ -120,10 +120,10 @@ def show_legal_moves(x, y):
     if kind == 'p':  # Pawn
         if color == '0':  # White
             if board[x - 1][y] == '':
-                move((x, y), (x-1, y))
+                move((x, y), (x - 1, y))
                 if not is_place_occupied(white_king[0], white_king[1], '1'):
                     places.append((x - 1, y))
-                move((x-1, y), (x, y))
+                move((x - 1, y), (x, y))
                 if x == 6 and board[x - 2][y] == '':
                     move((x, y), (x - 2, y))
                     if not is_place_occupied(white_king[0], white_king[1], '1'):
@@ -131,13 +131,13 @@ def show_legal_moves(x, y):
                     move((x - 2, y), (x, y))
 
             if x > 0 and y > 0 and board[x - 1][y - 1] != '' and board[x - 1][y - 1].model[1] == '1':
-                wh = board[x-1][y-1]
-                board[x-1][y-1] = board[x][y]
+                wh = board[x - 1][y - 1]
+                board[x - 1][y - 1] = board[x][y]
                 board[x][y] = ''
                 if not is_place_occupied(white_king[0], white_king[1], '1'):
                     places.append((x - 1, y - 1))
-                board[x][y] = board[x-1][y-1]
-                board[x-1][y-1] = wh
+                board[x][y] = board[x - 1][y - 1]
+                board[x - 1][y - 1] = wh
             if x > 0 and y < 7 and board[x - 1][y + 1] != '' and board[x - 1][y + 1].model[1] == '1':
                 wh = board[x - 1][y + 1]
                 board[x - 1][y + 1] = board[x][y]
@@ -327,10 +327,19 @@ def show_legal_moves(x, y):
         for i in range(x):
             if y >= i + 1:
                 if board[x - i - 1][y - i - 1] == '':
-                    places.append((x - i - 1, y - i - 1))
+                    move((x, y), (x - i - 1, y - i - 1))
+                    if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                        places.append((x - i - 1, y - i - 1))
+                    move((x - i - 1, y - i - 1), (x, y))
                 else:
                     if board[x - i - 1][y - i - 1].model[1] != color:
-                        places.append((x - i - 1, y - i - 1))
+                        wh = board[x - i - 1][y - i - 1]
+                        board[x - i - 1][y - i - 1] = board[x][y]
+                        board[x][y] = ''
+                        if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                            places.append((x - i - 1, y - i - 1))
+                        board[x][y] = board[x - i - 1][y - i - 1]
+                        board[x - i - 1][y - i - 1] = wh
                     break
             else:
                 break
@@ -338,10 +347,19 @@ def show_legal_moves(x, y):
         for i in range(x):
             if y <= 6 - i:
                 if board[x - i - 1][y + i + 1] == '':
-                    places.append((x - i - 1, y + i + 1))
+                    move((x, y), (x - i - 1, y + i + 1))
+                    if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                        places.append((x - i - 1, y + i + 1))
+                    move((x - i - 1, y + i + 1), (x, y))
                 else:
                     if board[x - i - 1][y + i + 1].model[1] != color:
-                        places.append((x - i - 1, y + i + 1))
+                        wh = board[x - i - 1][y + i + 1]
+                        board[x - i - 1][y + i + 1] = board[x][y]
+                        board[x][y] = ''
+                        if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                            places.append((x - i - 1, y + i + 1))
+                        board[x][y] = board[x - i - 1][y + i + 1]
+                        board[x - i - 1][y + i + 1] = wh
                     break
             else:
                 break
@@ -349,10 +367,19 @@ def show_legal_moves(x, y):
         for i in range(7 - x):
             if y >= i + 1:
                 if board[x + i + 1][y - i - 1] == '':
-                    places.append((x + i + 1, y - i - 1))
+                    move((x, y), (x + i + 1, y - i - 1))
+                    if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                        places.append((x + i + 1, y - i - 1))
+                    move((x + i + 1, y - i - 1), (x, y))
                 else:
                     if board[x + i + 1][y - i - 1].model[1] != color:
-                        places.append((x + i + 1, y - i - 1))
+                        wh = board[x + i + 1][y - i - 1]
+                        board[x + i + 1][y - i - 1] = board[x][y]
+                        board[x][y] = ''
+                        if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                            places.append((x + i + 1, y - i - 1))
+                        board[x][y] = board[x + i + 1][y - i - 1]
+                        board[x + i + 1][y - i - 1] = wh
                     break
             else:
                 break
@@ -360,10 +387,19 @@ def show_legal_moves(x, y):
         for i in range(7 - x):
             if y <= 6 - i:
                 if board[x + i + 1][y + i + 1] == '':
-                    places.append((x + i + 1, y + i + 1))
+                    move((x, y), (x + i + 1, y + i + 1))
+                    if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                        places.append((x + i + 1, y + i + 1))
+                    move((x + i + 1, y + i + 1), (x, y))
                 else:
                     if board[x + i + 1][y + i + 1].model[1] != color:
-                        places.append((x + i + 1, y + i + 1))
+                        wh = board[x + i + 1][y + i + 1]
+                        board[x + i + 1][y + i + 1] = board[x][y]
+                        board[x][y] = ''
+                        if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                            places.append((x + i + 1, y + i + 1))
+                        board[x][y] = board[x + i + 1][y + i + 1]
+                        board[x + i + 1][y + i + 1] = wh
                     break
             else:
                 break
@@ -371,41 +407,88 @@ def show_legal_moves(x, y):
     elif kind == 'q' and not check:  # Queen
         for i in range(x):
             if board[x - i - 1][y] == '':
-                places.append((x - i - 1, y))
+                move((x, y), (x - i - 1, y))
+                if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                    places.append((x - i - 1, y))
+                move((x - i - 1, y), (x, y))
             else:
                 if board[x - i - 1][y].model[1] != color:
-                    places.append((x - i - 1, y))
+                    wh = board[x - i - 1][y]
+                    board[x - i - 1][y] = board[x][y]
+                    board[x][y] = ''
+                    if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                        places.append((x - i - 1, y))
+                    board[x][y] = board[x - i - 1][y]
+                    board[x - i - 1][y] = wh
                 break
+
         for i in range(y):
             if board[x][y - i - 1] == '':
-                places.append((x, y - i - 1))
+                move((x, y), (x, y - i - 1))
+                if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                    places.append((x, y - i - 1))
+                move((x, y - i - 1), (x, y))
             else:
                 if board[x][y - i - 1].model[1] != color:
-                    places.append((x, y - i - 1))
+                    wh = board[x][y - i - 1]
+                    board[x][y - i - 1] = board[x][y]
+                    board[x][y] = ''
+                    if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                        places.append((x, y - i - 1))
+                    board[x][y] = board[x][y - i - 1]
+                    board[x][y - i - 1] = wh
                 break
 
         for i in range(7 - x):
             if board[x + i + 1][y] == '':
-                places.append((x + i + 1, y))
+                move((x, y), (x + i + 1, y))
+                if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                    places.append((x + i + 1, y))
+                move((x + i + 1, y), (x, y))
             else:
                 if board[x + i + 1][y].model[1] != color:
-                    places.append((x + i + 1, y))
+                    wh = board[x + i + 1][y]
+                    board[x + i + 1][y] = board[x][y]
+                    board[x][y] = ''
+                    if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                        places.append((x + i + 1, y))
+                    board[x][y] = board[x + i + 1][y]
+                    board[x + i + 1][y] = wh
                 break
         for i in range(7 - y):
             if board[x][y + i + 1] == '':
-                places.append((x, y + i + 1))
+                move((x, y), (x, y + i + 1))
+                if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                    places.append((x, y + i + 1))
+                move((x, y + i + 1), (x, y))
             else:
                 if board[x][y + i + 1].model[1] != color:
-                    places.append((x, y + i + 1))
+                    wh = board[x][y + i + 1]
+                    board[x][y + i + 1] = board[x][y]
+                    board[x][y] = ''
+                    if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                        places.append((x, y + i + 1))
+                    board[x][y] = board[x][y + i + 1]
+                    board[x][y + i + 1] = wh
                 break
 
+        # bishop version
         for i in range(x):
             if y >= i + 1:
                 if board[x - i - 1][y - i - 1] == '':
-                    places.append((x - i - 1, y - i - 1))
+                    move((x, y), (x - i - 1, y - i - 1))
+                    if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                        places.append((x - i - 1, y - i - 1))
+                    move((x - i - 1, y - i - 1), (x, y))
                 else:
                     if board[x - i - 1][y - i - 1].model[1] != color:
-                        places.append((x - i - 1, y - i - 1))
+                        wh = board[x - i - 1][y - i - 1]
+                        board[x - i - 1][y - i - 1] = board[x][y]
+                        board[x][y] = ''
+                        if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                            places.append((x - i - 1, y - i - 1))
+                        board[x][y] = board[x - i - 1][y - i - 1]
+                        board[x - i - 1][y - i - 1] = wh
                     break
             else:
                 break
@@ -413,10 +496,19 @@ def show_legal_moves(x, y):
         for i in range(x):
             if y <= 6 - i:
                 if board[x - i - 1][y + i + 1] == '':
-                    places.append((x - i - 1, y + i + 1))
+                    move((x, y), (x - i - 1, y + i + 1))
+                    if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                        places.append((x - i - 1, y + i + 1))
+                    move((x - i - 1, y + i + 1), (x, y))
                 else:
                     if board[x - i - 1][y + i + 1].model[1] != color:
-                        places.append((x - i - 1, y + i + 1))
+                        wh = board[x - i - 1][y + i + 1]
+                        board[x - i - 1][y + i + 1] = board[x][y]
+                        board[x][y] = ''
+                        if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                            places.append((x - i - 1, y + i + 1))
+                        board[x][y] = board[x - i - 1][y + i + 1]
+                        board[x - i - 1][y + i + 1] = wh
                     break
             else:
                 break
@@ -424,10 +516,19 @@ def show_legal_moves(x, y):
         for i in range(7 - x):
             if y >= i + 1:
                 if board[x + i + 1][y - i - 1] == '':
-                    places.append((x + i + 1, y - i - 1))
+                    move((x, y), (x + i + 1, y - i - 1))
+                    if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                        places.append((x + i + 1, y - i - 1))
+                    move((x + i + 1, y - i - 1), (x, y))
                 else:
                     if board[x + i + 1][y - i - 1].model[1] != color:
-                        places.append((x + i + 1, y - i - 1))
+                        wh = board[x + i + 1][y - i - 1]
+                        board[x + i + 1][y - i - 1] = board[x][y]
+                        board[x][y] = ''
+                        if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                            places.append((x + i + 1, y - i - 1))
+                        board[x][y] = board[x + i + 1][y - i - 1]
+                        board[x + i + 1][y - i - 1] = wh
                     break
             else:
                 break
@@ -435,13 +536,23 @@ def show_legal_moves(x, y):
         for i in range(7 - x):
             if y <= 6 - i:
                 if board[x + i + 1][y + i + 1] == '':
-                    places.append((x + i + 1, y + i + 1))
+                    move((x, y), (x + i + 1, y + i + 1))
+                    if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                        places.append((x + i + 1, y + i + 1))
+                    move((x + i + 1, y + i + 1), (x, y))
                 else:
                     if board[x + i + 1][y + i + 1].model[1] != color:
-                        places.append((x + i + 1, y + i + 1))
+                        wh = board[x + i + 1][y + i + 1]
+                        board[x + i + 1][y + i + 1] = board[x][y]
+                        board[x][y] = ''
+                        if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
+                            places.append((x + i + 1, y + i + 1))
+                        board[x][y] = board[x + i + 1][y + i + 1]
+                        board[x + i + 1][y + i + 1] = wh
                     break
             else:
                 break
+
 
     elif kind == 'k':  # King
         if x >= 1:
@@ -493,7 +604,8 @@ def show_legal_moves(x, y):
                     if (not is_place_occupied(7, 5, '1')) and (not is_place_occupied(7, 6, '1')):
                         places.append((7, 6))
                 if not is_white_moved[2] and board[7][3] == '' and board[7][2] == '' and board[7][1] == '':
-                    if (not is_place_occupied(7, 3, '1')) and (not is_place_occupied(7, 2, '1')) and (not is_place_occupied(7, 1, '1')):
+                    if (not is_place_occupied(7, 3, '1')) and (not is_place_occupied(7, 2, '1')) and (
+                    not is_place_occupied(7, 1, '1')):
                         places.append((7, 2))
         else:
             if not is_black_moved[0]:
@@ -501,7 +613,8 @@ def show_legal_moves(x, y):
                     if (not is_place_occupied(0, 5, '0')) and (not is_place_occupied(0, 6, '0')):
                         places.append((0, 6))
                 if not is_white_moved[2] and board[0][3] == '' and board[0][2] == '' and board[0][1] == '':
-                    if (not is_place_occupied(0, 3, '0')) and (not is_place_occupied(0, 2, '0')) and (not is_place_occupied(0, 1, '0')):
+                    if (not is_place_occupied(0, 3, '0')) and (not is_place_occupied(0, 2, '0')) and (
+                    not is_place_occupied(0, 1, '0')):
                         places.append((0, 2))
 
     print(is_place_occupied(white_king[0], white_king[1], '1'))
