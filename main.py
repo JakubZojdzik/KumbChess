@@ -25,6 +25,7 @@ is_black_moved = [False, False, False]
 turn = 0  # 0 - white, 1 - black
 white_king = (7, 4)
 black_king = (0, 4)
+winner = -1
 
 
 def opponent(color):
@@ -115,7 +116,6 @@ def show_legal_moves(x, y):
     color = board[x][y].model[1]
     kind = board[x][y].model[0]
     places = []
-    check = False
 
     if kind == 'p':  # Pawn
         if color == '0':  # White
@@ -175,7 +175,7 @@ def show_legal_moves(x, y):
                 board[x][y] = board[x + 1][y + 1]
                 board[x + 1][y + 1] = wh
 
-    elif kind == 'r' and not check:  # Rock
+    elif kind == 'r':  # Rock
         for i in range(x):
             if board[x - i - 1][y] == '':
                 move((x, y), (x - i - 1, y))
@@ -243,7 +243,7 @@ def show_legal_moves(x, y):
                     board[x][y + i + 1] = wh
                 break
 
-    elif kind == 'n' and not check:  # Knight
+    elif kind == 'n':  # Knight
         # board[x-2][y-1], board[x-2][y+1], board[x-1][y+2], board[x+1][y+2], board[x+2][y+1], board[x+2][y-1], board[x+1][y-2], board[x-1][y-2]
         if x >= 2 and y >= 1:
             if board[x - 2][y - 1] == '' or board[x - 2][y - 1].model[1] != color:
@@ -283,10 +283,6 @@ def show_legal_moves(x, y):
                 board[x][y] = board[x + 1][y + 2]
                 board[x + 1][y + 2] = wh
         if x <= 5 and y <= 6:
-            try:
-                print(board[x + 2][y + 1].model[1])
-            except Exception:
-                print("string")
             if board[x + 2][y + 1] == '' or board[x + 2][y + 1].model[1] != color:
                 wh = board[x + 2][y + 1]
                 board[x + 2][y + 1] = board[x][y]
@@ -323,7 +319,7 @@ def show_legal_moves(x, y):
                 board[x][y] = board[x - 1][y - 2]
                 board[x - 1][y - 2] = wh
 
-    elif kind == 'b' and not check:
+    elif kind == 'b':
         for i in range(x):
             if y >= i + 1:
                 if board[x - i - 1][y - i - 1] == '':
@@ -404,7 +400,7 @@ def show_legal_moves(x, y):
             else:
                 break
 
-    elif kind == 'q' and not check:  # Queen
+    elif kind == 'q':  # Queen
         for i in range(x):
             if board[x - i - 1][y] == '':
                 move((x, y), (x - i - 1, y))
@@ -553,7 +549,6 @@ def show_legal_moves(x, y):
             else:
                 break
 
-
     elif kind == 'k':  # King
         if x >= 1:
             if board[x - 1][y] == '' or board[x - 1][y].model[1] != color:
@@ -605,7 +600,7 @@ def show_legal_moves(x, y):
                         places.append((7, 6))
                 if not is_white_moved[2] and board[7][3] == '' and board[7][2] == '' and board[7][1] == '':
                     if (not is_place_occupied(7, 3, '1')) and (not is_place_occupied(7, 2, '1')) and (
-                    not is_place_occupied(7, 1, '1')):
+                            not is_place_occupied(7, 1, '1')):
                         places.append((7, 2))
         else:
             if not is_black_moved[0]:
@@ -614,10 +609,9 @@ def show_legal_moves(x, y):
                         places.append((0, 6))
                 if not is_white_moved[2] and board[0][3] == '' and board[0][2] == '' and board[0][1] == '':
                     if (not is_place_occupied(0, 3, '0')) and (not is_place_occupied(0, 2, '0')) and (
-                    not is_place_occupied(0, 1, '0')):
+                            not is_place_occupied(0, 1, '0')):
                         places.append((0, 2))
 
-    print(is_place_occupied(white_king[0], white_king[1], '1'))
     return places
 
 
@@ -831,6 +825,26 @@ def is_place_occupied(r, t, color):
                                 break
                         else:
                             break
+
+                elif kind == 'k':  # King
+                    if x >= 1:
+                        plac.append((x - 1, y))
+                        if y >= 1:
+                            plac.append((x - 1, y - 1))
+                        if y <= 6:
+                            plac.append((x - 1, y + 1))
+
+                    if x <= 6:
+                        plac.append((x + 1, y))
+                        if y >= 1:
+                            plac.append((x + 1, y - 1))
+                        if y <= 6:
+                            plac.append((x + 1, y + 1))
+                    if y >= 1:
+                        plac.append((x, y - 1))
+                    if y <= 6:
+                        plac.append((x, y + 1))
+
     return (r, t) in plac
 
 
@@ -838,31 +852,36 @@ resetBoard()
 # Game loop.:
 while True:
     screen.fill((209, 170, 111))
+    if winner != -1:
+        print("The winner is ", winner)
+        break
+    else:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                if selected == 0:
+                    for i in range(8):
+                        for j in range(8):
+                            if board[i][j] != '' and board[i][j].model[1] == str(turn):
+                                if board[i][j].rect.collidepoint(x, y):
+                                    dot_places = show_legal_moves(i, j)
+                                    if not dot_places:
+                                        winner = opponent(board[i][j].model[1])
+                                    if dot_places:
+                                        selected = (i, j)
 
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            pygame.quit()
-            sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            x, y = event.pos
-            if selected == 0:
-                for i in range(8):
-                    for j in range(8):
-                        if board[i][j] != '' and board[i][j].model[1] == str(turn):
-                            if board[i][j].rect.collidepoint(x, y):
-                                dot_places = show_legal_moves(i, j)
-                                if dot_places:
-                                    selected = (i, j)
-
-            else:
-                for sprite in dot_sprites:
-                    if sprite.rect.collidepoint(x, y):
-                        move(selected, cords_to_pos(sprite.x, sprite.y))
-                        if turn == 0:
-                            turn = 1
-                        else:
-                            turn = 0
-                selected = 0
+                else:
+                    for sprite in dot_sprites:
+                        if sprite.rect.collidepoint(x, y):
+                            move(selected, cords_to_pos(sprite.x, sprite.y))
+                            if turn == 0:
+                                turn = 1
+                            else:
+                                turn = 0
+                    selected = 0
 
     # Update.
     draw_board()
