@@ -1,9 +1,11 @@
+import os
 import sys
 import pygame
 from pygame.locals import *
 from piece import Piece
 from board import Board
 from mark import Mark
+import pygame_menu
 
 pygame.init()
 
@@ -25,7 +27,10 @@ is_black_moved = [False, False, False]
 turn = 0  # 0 - white, 1 - black
 white_king = (7, 4)
 black_king = (0, 4)
-winner = -1
+winner = '9'
+run = False
+menu = pygame_menu.Menu('KumbChess', 800, 600, theme=pygame_menu.themes.THEME_DEFAULT)
+logo_path = os.path.join('img', 'logo.png')
 
 
 def opponent(color):
@@ -120,15 +125,21 @@ def show_legal_moves(x, y):
     if kind == 'p':  # Pawn
         if color == '0':  # White
             if board[x - 1][y] == '':
-                move((x, y), (x - 1, y))
+                wh = board[x - 1][y]
+                board[x - 1][y] = board[x][y]
+                board[x][y] = ''
                 if not is_place_occupied(white_king[0], white_king[1], '1'):
                     places.append((x - 1, y))
-                move((x - 1, y), (x, y))
+                board[x][y] = board[x - 1][y]
+                board[x - 1][y] = wh
                 if x == 6 and board[x - 2][y] == '':
-                    move((x, y), (x - 2, y))
+                    wh = board[x - 2][y]
+                    board[x - 2][y] = board[x][y]
+                    board[x][y] = ''
                     if not is_place_occupied(white_king[0], white_king[1], '1'):
                         places.append((x - 2, y))
-                    move((x - 2, y), (x, y))
+                    board[x][y] = board[x - 2][y]
+                    board[x - 2][y] = wh
 
             if x > 0 and y > 0 and board[x - 1][y - 1] != '' and board[x - 1][y - 1].model[1] == '1':
                 wh = board[x - 1][y - 1]
@@ -148,15 +159,21 @@ def show_legal_moves(x, y):
                 board[x - 1][y + 1] = wh
         else:  # Black
             if board[x + 1][y] == '':
-                move((x, y), (x + 1, y))
+                wh = board[x + 1][y]
+                board[x + 1][y] = board[x][y]
+                board[x][y] = ''
                 if not is_place_occupied(black_king[0], black_king[1], '0'):
                     places.append((x + 1, y))
-                move((x + 1, y), (x, y))
+                board[x][y] = board[x + 1][y]
+                board[x + 1][y] = wh
                 if x == 1 and board[x + 2][y] == '':
-                    move((x, y), (x + 2, y))
+                    wh = board[x + 2][y]
+                    board[x + 2][y] = board[x][y]
+                    board[x][y] = ''
                     if not is_place_occupied(black_king[0], black_king[1], '0'):
                         places.append((x + 2, y))
-                    move((x + 2, y), (x, y))
+                    board[x][y] = board[x + 2][y]
+                    board[x + 2][y] = wh
 
             if y > 0 and board[x + 1][y - 1] != '' and board[x + 1][y - 1].model[1] == '0':
                 wh = board[x + 1][y - 1]
@@ -178,10 +195,13 @@ def show_legal_moves(x, y):
     elif kind == 'r':  # Rock
         for i in range(x):
             if board[x - i - 1][y] == '':
-                move((x, y), (x - i - 1, y))
+                wh = board[x - i - 1][y]
+                board[x - i - 1][y] = board[x][y]
+                board[x][y] = ''
                 if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                     places.append((x - i - 1, y))
-                move((x - i - 1, y), (x, y))
+                board[x][y] = board[x - i - 1][y]
+                board[x - i - 1][y] = wh
             else:
                 if board[x - i - 1][y].model[1] != color:
                     wh = board[x - i - 1][y]
@@ -195,10 +215,13 @@ def show_legal_moves(x, y):
 
         for i in range(y):
             if board[x][y - i - 1] == '':
-                move((x, y), (x, y - i - 1))
+                wh = board[x][y - i - 1]
+                board[x][y - i - 1] = board[x][y]
+                board[x][y] = ''
                 if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                     places.append((x, y - i - 1))
-                move((x, y - i - 1), (x, y))
+                board[x][y] = board[x][y - i - 1]
+                board[x][y - i - 1] = wh
             else:
                 if board[x][y - i - 1].model[1] != color:
                     wh = board[x][y - i - 1]
@@ -212,10 +235,13 @@ def show_legal_moves(x, y):
 
         for i in range(7 - x):
             if board[x + i + 1][y] == '':
-                move((x, y), (x + i + 1, y))
+                wh = board[x + i + 1][y]
+                board[x + i + 1][y] = board[x][y]
+                board[x][y] = ''
                 if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                     places.append((x + i + 1, y))
-                move((x + i + 1, y), (x, y))
+                board[x][y] = board[x + i + 1][y]
+                board[x + i + 1][y] = wh
             else:
                 if board[x + i + 1][y].model[1] != color:
                     wh = board[x + i + 1][y]
@@ -228,10 +254,13 @@ def show_legal_moves(x, y):
                 break
         for i in range(7 - y):
             if board[x][y + i + 1] == '':
-                move((x, y), (x, y + i + 1))
+                wh = board[x][y + i + 1]
+                board[x][y + i + 1] = board[x][y]
+                board[x][y] = ''
                 if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                     places.append((x, y + i + 1))
-                move((x, y + i + 1), (x, y))
+                board[x][y] = board[x][y + i + 1]
+                board[x][y + i + 1] = wh
             else:
                 if board[x][y + i + 1].model[1] != color:
                     wh = board[x][y + i + 1]
@@ -323,10 +352,13 @@ def show_legal_moves(x, y):
         for i in range(x):
             if y >= i + 1:
                 if board[x - i - 1][y - i - 1] == '':
-                    move((x, y), (x - i - 1, y - i - 1))
+                    wh = board[x - i - 1][y - i - 1]
+                    board[x - i - 1][y - i - 1] = board[x][y]
+                    board[x][y] = ''
                     if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                         places.append((x - i - 1, y - i - 1))
-                    move((x - i - 1, y - i - 1), (x, y))
+                    board[x][y] = board[x - i - 1][y - i - 1]
+                    board[x - i - 1][y - i - 1] = wh
                 else:
                     if board[x - i - 1][y - i - 1].model[1] != color:
                         wh = board[x - i - 1][y - i - 1]
@@ -343,10 +375,13 @@ def show_legal_moves(x, y):
         for i in range(x):
             if y <= 6 - i:
                 if board[x - i - 1][y + i + 1] == '':
-                    move((x, y), (x - i - 1, y + i + 1))
+                    wh = board[x - i - 1][y + i + 1]
+                    board[x - i - 1][y + i + 1] = board[x][y]
+                    board[x][y] = ''
                     if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                         places.append((x - i - 1, y + i + 1))
-                    move((x - i - 1, y + i + 1), (x, y))
+                    board[x][y] = board[x - i - 1][y + i + 1]
+                    board[x - i - 1][y + i + 1] = wh
                 else:
                     if board[x - i - 1][y + i + 1].model[1] != color:
                         wh = board[x - i - 1][y + i + 1]
@@ -363,10 +398,13 @@ def show_legal_moves(x, y):
         for i in range(7 - x):
             if y >= i + 1:
                 if board[x + i + 1][y - i - 1] == '':
-                    move((x, y), (x + i + 1, y - i - 1))
+                    wh = board[x + i + 1][y - i - 1]
+                    board[x + i + 1][y - i - 1] = board[x][y]
+                    board[x][y] = ''
                     if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                         places.append((x + i + 1, y - i - 1))
-                    move((x + i + 1, y - i - 1), (x, y))
+                    board[x][y] = board[x + i + 1][y - i - 1]
+                    board[x + i + 1][y - i - 1] = wh
                 else:
                     if board[x + i + 1][y - i - 1].model[1] != color:
                         wh = board[x + i + 1][y - i - 1]
@@ -383,10 +421,13 @@ def show_legal_moves(x, y):
         for i in range(7 - x):
             if y <= 6 - i:
                 if board[x + i + 1][y + i + 1] == '':
-                    move((x, y), (x + i + 1, y + i + 1))
+                    wh = board[x + i + 1][y + i + 1]
+                    board[x + i + 1][y + i + 1] = board[x][y]
+                    board[x][y] = ''
                     if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                         places.append((x + i + 1, y + i + 1))
-                    move((x + i + 1, y + i + 1), (x, y))
+                    board[x][y] = board[x + i + 1][y + i + 1]
+                    board[x + i + 1][y + i + 1] = wh
                 else:
                     if board[x + i + 1][y + i + 1].model[1] != color:
                         wh = board[x + i + 1][y + i + 1]
@@ -403,10 +444,13 @@ def show_legal_moves(x, y):
     elif kind == 'q':  # Queen
         for i in range(x):
             if board[x - i - 1][y] == '':
-                move((x, y), (x - i - 1, y))
+                wh = board[x - i - 1][y]
+                board[x - i - 1][y] = board[x][y]
+                board[x][y] = ''
                 if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                     places.append((x - i - 1, y))
-                move((x - i - 1, y), (x, y))
+                board[x][y] = board[x - i - 1][y]
+                board[x - i - 1][y] = wh
             else:
                 if board[x - i - 1][y].model[1] != color:
                     wh = board[x - i - 1][y]
@@ -420,10 +464,13 @@ def show_legal_moves(x, y):
 
         for i in range(y):
             if board[x][y - i - 1] == '':
-                move((x, y), (x, y - i - 1))
+                wh = board[x][y - i - 1]
+                board[x][y - i - 1] = board[x][y]
+                board[x][y] = ''
                 if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                     places.append((x, y - i - 1))
-                move((x, y - i - 1), (x, y))
+                board[x][y] = board[x][y - i - 1]
+                board[x][y - i - 1] = wh
             else:
                 if board[x][y - i - 1].model[1] != color:
                     wh = board[x][y - i - 1]
@@ -437,10 +484,13 @@ def show_legal_moves(x, y):
 
         for i in range(7 - x):
             if board[x + i + 1][y] == '':
-                move((x, y), (x + i + 1, y))
+                wh = board[x + i + 1][y]
+                board[x + i + 1][y] = board[x][y]
+                board[x][y] = ''
                 if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                     places.append((x + i + 1, y))
-                move((x + i + 1, y), (x, y))
+                board[x][y] = board[x + i + 1][y]
+                board[x + i + 1][y] = wh
             else:
                 if board[x + i + 1][y].model[1] != color:
                     wh = board[x + i + 1][y]
@@ -453,10 +503,13 @@ def show_legal_moves(x, y):
                 break
         for i in range(7 - y):
             if board[x][y + i + 1] == '':
-                move((x, y), (x, y + i + 1))
+                wh = board[x][y + i + 1]
+                board[x][y + i + 1] = board[x][y]
+                board[x][y] = ''
                 if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                     places.append((x, y + i + 1))
-                move((x, y + i + 1), (x, y))
+                board[x][y] = board[x][y + i + 1]
+                board[x][y + i + 1] = wh
             else:
                 if board[x][y + i + 1].model[1] != color:
                     wh = board[x][y + i + 1]
@@ -472,10 +525,13 @@ def show_legal_moves(x, y):
         for i in range(x):
             if y >= i + 1:
                 if board[x - i - 1][y - i - 1] == '':
-                    move((x, y), (x - i - 1, y - i - 1))
+                    wh = board[x - i - 1][y - i - 1]
+                    board[x - i - 1][y - i - 1] = board[x][y]
+                    board[x][y] = ''
                     if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                         places.append((x - i - 1, y - i - 1))
-                    move((x - i - 1, y - i - 1), (x, y))
+                    board[x][y] = board[x - i - 1][y - i - 1]
+                    board[x - i - 1][y - i - 1] = wh
                 else:
                     if board[x - i - 1][y - i - 1].model[1] != color:
                         wh = board[x - i - 1][y - i - 1]
@@ -492,10 +548,13 @@ def show_legal_moves(x, y):
         for i in range(x):
             if y <= 6 - i:
                 if board[x - i - 1][y + i + 1] == '':
-                    move((x, y), (x - i - 1, y + i + 1))
+                    wh = board[x - i - 1][y + i + 1]
+                    board[x - i - 1][y + i + 1] = board[x][y]
+                    board[x][y] = ''
                     if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                         places.append((x - i - 1, y + i + 1))
-                    move((x - i - 1, y + i + 1), (x, y))
+                    board[x][y] = board[x - i - 1][y + i + 1]
+                    board[x - i - 1][y + i + 1] = wh
                 else:
                     if board[x - i - 1][y + i + 1].model[1] != color:
                         wh = board[x - i - 1][y + i + 1]
@@ -512,10 +571,13 @@ def show_legal_moves(x, y):
         for i in range(7 - x):
             if y >= i + 1:
                 if board[x + i + 1][y - i - 1] == '':
-                    move((x, y), (x + i + 1, y - i - 1))
+                    wh = board[x + i + 1][y - i - 1]
+                    board[x + i + 1][y - i - 1] = board[x][y]
+                    board[x][y] = ''
                     if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                         places.append((x + i + 1, y - i - 1))
-                    move((x + i + 1, y - i - 1), (x, y))
+                    board[x][y] = board[x + i + 1][y - i - 1]
+                    board[x + i + 1][y - i - 1] = wh
                 else:
                     if board[x + i + 1][y - i - 1].model[1] != color:
                         wh = board[x + i + 1][y - i - 1]
@@ -532,10 +594,13 @@ def show_legal_moves(x, y):
         for i in range(7 - x):
             if y <= 6 - i:
                 if board[x + i + 1][y + i + 1] == '':
-                    move((x, y), (x + i + 1, y + i + 1))
+                    wh = board[x + i + 1][y + i + 1]
+                    board[x + i + 1][y + i + 1] = board[x][y]
+                    board[x][y] = ''
                     if not is_place_occupied(king_pos(color)[0], king_pos(color)[1], opponent(color)):
                         places.append((x + i + 1, y + i + 1))
-                    move((x + i + 1, y + i + 1), (x, y))
+                    board[x][y] = board[x + i + 1][y + i + 1]
+                    board[x + i + 1][y + i + 1] = wh
                 else:
                     if board[x + i + 1][y + i + 1].model[1] != color:
                         wh = board[x + i + 1][y + i + 1]
@@ -596,20 +661,22 @@ def show_legal_moves(x, y):
         if color == '0':
             if not is_white_moved[0]:
                 if not is_white_moved[1] and board[7][5] == '' and board[7][6] == '':
-                    if (not is_place_occupied(7, 5, '1')) and (not is_place_occupied(7, 6, '1')):
+                    if (not is_place_occupied(7, 4, '1')) and (not is_place_occupied(7, 5, '1')) and (
+                            not is_place_occupied(7, 6, '1')):
                         places.append((7, 6))
                 if not is_white_moved[2] and board[7][3] == '' and board[7][2] == '' and board[7][1] == '':
-                    if (not is_place_occupied(7, 3, '1')) and (not is_place_occupied(7, 2, '1')) and (
-                            not is_place_occupied(7, 1, '1')):
+                    if (not is_place_occupied(7, 4, '1')) and (not is_place_occupied(7, 3, '1')) and (
+                            not is_place_occupied(7, 2, '1')) and (not is_place_occupied(7, 1, '1')):
                         places.append((7, 2))
         else:
             if not is_black_moved[0]:
                 if not is_black_moved[1] and board[0][5] == '' and board[0][6] == '':
-                    if (not is_place_occupied(0, 5, '0')) and (not is_place_occupied(0, 6, '0')):
+                    if (not is_place_occupied(0, 4, '0')) and (not is_place_occupied(0, 5, '0')) and (
+                            not is_place_occupied(0, 6, '0')):
                         places.append((0, 6))
                 if not is_white_moved[2] and board[0][3] == '' and board[0][2] == '' and board[0][1] == '':
-                    if (not is_place_occupied(0, 3, '0')) and (not is_place_occupied(0, 2, '0')) and (
-                            not is_place_occupied(0, 1, '0')):
+                    if (not is_place_occupied(0, 4, '0')) and (not is_place_occupied(0, 3, '0')) and (
+                            not is_place_occupied(0, 2, '0')) and (not is_place_occupied(0, 1, '0')):
                         places.append((0, 2))
 
     return places
@@ -618,6 +685,7 @@ def show_legal_moves(x, y):
 def move(od, do):
     global white_king
     global black_king
+    global winner
     if od != do:
         if board[od[0]][od[1]] != '':
             if board[do[0]][do[1]] == '' or board[do[0]][do[1]].model[1] != board[od[0]][od[1]].model[1]:
@@ -652,6 +720,13 @@ def move(od, do):
                     is_black_moved[1] = True
                 if (not is_black_moved[2] and od == (0, 0)) or do == (0, 0):
                     is_black_moved[2] = True
+
+    for i in range(8):
+        for j in range(8):
+            if board[i][j] != '' and board[i][j].model[1] != board[do[0]][do[1]].model[1]:
+                if show_legal_moves(i, j):
+                    return '9'
+    return board[do[0]][do[1]].model[1]
 
 
 def is_place_occupied(r, t, color):
@@ -848,44 +923,87 @@ def is_place_occupied(r, t, color):
     return (r, t) in plac
 
 
-resetBoard()
-# Game loop.:
-while True:
-    screen.fill((209, 170, 111))
-    if winner != -1:
-        print("The winner is ", winner)
-        break
-    else:
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                x, y = event.pos
-                if selected == 0:
-                    for i in range(8):
-                        for j in range(8):
-                            if board[i][j] != '' and board[i][j].model[1] == str(turn):
-                                if board[i][j].rect.collidepoint(x, y):
-                                    dot_places = show_legal_moves(i, j)
-                                    if not dot_places:
-                                        winner = opponent(board[i][j].model[1])
-                                    if dot_places:
-                                        selected = (i, j)
+def main():
+    global board
+    global selected
+    global dot_places
+    global winner
+    global turn
+    resetBoard()
+    while run:
+        screen.fill((209, 170, 111))
+        if winner != '9':
+            print("The winner is ", winner)
+            break
+        else:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = event.pos
+                    if selected == 0:
+                        for i in range(8):
+                            for j in range(8):
+                                if board[i][j] != '' and board[i][j].model[1] == str(turn):
+                                    if board[i][j].rect.collidepoint(x, y):
+                                        dot_places = show_legal_moves(i, j)
+                                        if dot_places:
+                                            selected = (i, j)
 
-                else:
-                    for sprite in dot_sprites:
-                        if sprite.rect.collidepoint(x, y):
-                            move(selected, cords_to_pos(sprite.x, sprite.y))
-                            if turn == 0:
-                                turn = 1
-                            else:
-                                turn = 0
-                    selected = 0
+                    else:
+                        for sprite in dot_sprites:
+                            if sprite.rect.collidepoint(x, y):
+                                winner = move(selected, cords_to_pos(sprite.x, sprite.y))
+                                if turn == 0:
+                                    turn = 1
+                                else:
+                                    turn = 0
+                        selected = 0
 
-    # Update.
-    draw_board()
-    # Draw.
+        # Update.
+        draw_board()
+        # Draw.
 
-    pygame.display.flip()
-    fpsClock.tick(fps)
+        pygame.display.flip()
+        fpsClock.tick(fps)
+
+
+def start_game():
+    global board
+    global all_sprites
+    global selected
+    global dot_places
+    global dot_sprites
+    global is_white_moved
+    global is_black_moved
+    global turn
+    global white_king
+    global black_king
+    global winner
+    global run
+    board = []
+    all_sprites = pygame.sprite.Group()
+    selected = 0
+    dot_places = []
+    dot_sprites = []
+    is_white_moved = [False, False, False]
+    is_black_moved = [False, False, False]
+    turn = 0  # 0 - white, 1 - black
+    white_king = (7, 4)
+    black_king = (0, 4)
+    winner = '9'
+    run = True
+    main()
+
+
+def main_menu():
+    menu.add.image(logo_path, scale=(2, 2)).set_margin(0, 30)
+    menu.add.button('      Play      ', start_game, font_color=(255, 255, 255), align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(125, 125, 125)).set_max_width(200)
+    menu.add.button('     Credits     ', pygame_menu.events.EXIT, font_color=(255, 255, 255), align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(125, 125, 125))
+    menu.add.button('      Quit      ', pygame_menu.events.EXIT, font_color=(255, 255, 255), align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(125, 125, 125))
+
+    menu.mainloop(screen)
+
+
+main_menu()
