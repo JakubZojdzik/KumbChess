@@ -31,6 +31,11 @@ winner = '9'
 run = False
 menu = pygame_menu.Menu('KumbChess', 800, 600, theme=pygame_menu.themes.THEME_DEFAULT)
 logo_path = os.path.join('img', 'logo.png')
+wnr = 0
+
+
+def nothing():
+    pass
 
 
 def opponent(color):
@@ -929,12 +934,18 @@ def main():
     global dot_places
     global winner
     global turn
+    global run
     resetBoard()
     while run:
         screen.fill((209, 170, 111))
         if winner != '9':
-            print("The winner is ", winner)
-            break
+            run = False
+            if winner == '0':
+                wnr.set_title("White is the winner")
+            if winner == '1':
+                wnr.set_title("Black is the winner")
+            menu.mainloop(screen)
+
         else:
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -998,10 +1009,12 @@ def start_game():
 
 
 def main_menu():
+    global wnr
     menu.add.image(logo_path, scale=(2, 2)).set_margin(0, 30)
     menu.add.button('      Play      ', start_game, font_color=(255, 255, 255), align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(125, 125, 125)).set_max_width(200)
     menu.add.button('     Credits     ', pygame_menu.events.EXIT, font_color=(255, 255, 255), align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(125, 125, 125))
     menu.add.button('      Quit      ', pygame_menu.events.EXIT, font_color=(255, 255, 255), align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(125, 125, 125))
+    wnr = menu.add.button('', nothing, button_id='wnr', font_color=(0, 0, 0), align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(220, 220, 220))
 
     menu.mainloop(screen)
 
