@@ -1021,15 +1021,30 @@ def start_game():
 
 def main_menu():
     global wnr
+    global menu
+    menu = pygame_menu.Menu('KumbChess', 800, 600, theme=pygame_menu.themes.THEME_DEFAULT)
     menu.add.image(logo_path, scale=(2, 2)).set_margin(0, 30)
     menu.add.button('      Play      ', start_game, font_color=(255, 255, 255), align=pygame_menu.locals.ALIGN_CENTER,
                     margin=(0, 20), background_color=(125, 125, 125)).set_max_width(200)
-    menu.add.button('     Credits     ', pygame_menu.events.EXIT, font_color=(255, 255, 255),
+    menu.add.button('     Credits     ', credits, font_color=(255, 255, 255),
                     align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(125, 125, 125))
     menu.add.button('      Quit      ', pygame_menu.events.EXIT, font_color=(255, 255, 255),
                     align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(125, 125, 125))
-    wnr = menu.add.button('', nothing, button_id='wnr', font_color=(0, 0, 0), align=pygame_menu.locals.ALIGN_CENTER,
-                          margin=(0, 20), background_color=(220, 220, 220))
+    wnr = menu.add.label('', font_color=(0, 0, 0), align=pygame_menu.locals.ALIGN_CENTER,
+                         margin=(0, 20), background_color=(220, 220, 220))
+
+    menu.mainloop(screen)
+
+
+def credits():
+    global wnr
+    global menu
+    menu = pygame_menu.Menu('KumbChess', 800, 600, theme=pygame_menu.themes.THEME_DEFAULT)
+    menu.add.image(logo_path, scale=(2, 2)).set_margin(0, 30)
+    menu.add.label("Programed by me", align=pygame_menu.locals.ALIGN_CENTER, font_size=25)
+    menu.add.label("Graphics by me", align=pygame_menu.locals.ALIGN_CENTER, font_size=25)
+    menu.add.label("Audio by... there aren't any sounds :((", align=pygame_menu.locals.ALIGN_CENTER, font_size=25)
+    menu.add.button('Go back', main_menu, font_color=(255, 255, 255), align=pygame_menu.locals.ALIGN_CENTER, background_color=(125, 125, 125))
 
     menu.mainloop(screen)
 
