@@ -694,6 +694,12 @@ def move(od, do):
     if od != do:
         if board[od[0]][od[1]] != '':
             if board[do[0]][do[1]] == '' or board[do[0]][do[1]].model[1] != board[od[0]][od[1]].model[1]:
+                if board[od[0]][od[1]].model[1] == '0' and board[od[0]][od[1]].model[0] == 'p':
+                    if od[0] == 1 and do[0] == 0:
+                        board[od[0]][od[1]] = Piece('q0')
+                if board[od[0]][od[1]].model[1] == '1' and board[od[0]][od[1]].model[0] == 'p':
+                    if od[0] == 6 and do[0] == 7:
+                        board[od[0]][od[1]] = Piece('q1')
                 if od == white_king:
                     white_king = do
                 elif od == black_king:
@@ -731,7 +737,10 @@ def move(od, do):
             if board[i][j] != '' and board[i][j].model[1] != board[do[0]][do[1]].model[1]:
                 if show_legal_moves(i, j):
                     return '9'
-    return board[do[0]][do[1]].model[1]
+    if is_place_occupied(king_pos(opponent(board[do[0]][do[1]].model[1]))[0], king_pos(opponent(board[do[0]][do[1]].model[1]))[1], board[do[0]][do[1]].model[1]):
+        return board[do[0]][do[1]].model[1]
+    else:
+        return '5'
 
 
 def is_place_occupied(r, t, color):
@@ -944,6 +953,8 @@ def main():
                 wnr.set_title("White is the winner")
             if winner == '1':
                 wnr.set_title("Black is the winner")
+            if winner == '5':
+                wnr.set_title("Draw")
             menu.mainloop(screen)
 
         else:
@@ -1011,10 +1022,14 @@ def start_game():
 def main_menu():
     global wnr
     menu.add.image(logo_path, scale=(2, 2)).set_margin(0, 30)
-    menu.add.button('      Play      ', start_game, font_color=(255, 255, 255), align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(125, 125, 125)).set_max_width(200)
-    menu.add.button('     Credits     ', pygame_menu.events.EXIT, font_color=(255, 255, 255), align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(125, 125, 125))
-    menu.add.button('      Quit      ', pygame_menu.events.EXIT, font_color=(255, 255, 255), align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(125, 125, 125))
-    wnr = menu.add.button('', nothing, button_id='wnr', font_color=(0, 0, 0), align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(220, 220, 220))
+    menu.add.button('      Play      ', start_game, font_color=(255, 255, 255), align=pygame_menu.locals.ALIGN_CENTER,
+                    margin=(0, 20), background_color=(125, 125, 125)).set_max_width(200)
+    menu.add.button('     Credits     ', pygame_menu.events.EXIT, font_color=(255, 255, 255),
+                    align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(125, 125, 125))
+    menu.add.button('      Quit      ', pygame_menu.events.EXIT, font_color=(255, 255, 255),
+                    align=pygame_menu.locals.ALIGN_CENTER, margin=(0, 20), background_color=(125, 125, 125))
+    wnr = menu.add.button('', nothing, button_id='wnr', font_color=(0, 0, 0), align=pygame_menu.locals.ALIGN_CENTER,
+                          margin=(0, 20), background_color=(220, 220, 220))
 
     menu.mainloop(screen)
 
