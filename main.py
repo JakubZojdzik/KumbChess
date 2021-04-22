@@ -129,6 +129,7 @@ def show_legal_moves(x, y):
     kind = board[x][y].model[0]
     places = []
 
+
     if kind == 'p':  # Pawn
         if color == '0':  # White
             if board[x - 1][y] == '':
@@ -818,6 +819,7 @@ def is_place_occupied(r, t, color):
         for y in range(8):
             if board[x][y] != '' and board[x][y].model[1] == color:
                 kind = board[x][y].model[0]
+
                 if kind == 'p':  # Pawn
                     if color == '0':  # White
                         if x > 0 and y > 0:
@@ -832,30 +834,35 @@ def is_place_occupied(r, t, color):
 
                 elif kind == 'r':  # Rock
                     for i in range(x):
-                        if board[x - i - 1][y] == '':
+                        if board[x - i - 1][y] == '' :
                             plac.append((x - i - 1, y))
                         else:
                             plac.append((x - i - 1, y))
-                            break
+                            if not (board[x - i - 1][y].model[0] == 'k' and board[x - i - 1][y].model[1] == opponent(color)):
+                                break
+
                     for i in range(y):
                         if board[x][y - i - 1] == '':
                             plac.append((x, y - i - 1))
                         else:
                             plac.append((x, y - i - 1))
-                            break
+                            if not (board[x][y - i - 1].model[0] == 'k' and board[x][y - i - 1].model[1] == opponent(color)):
+                                break
 
                     for i in range(7 - x):
                         if board[x + i + 1][y] == '':
                             plac.append((x + i + 1, y))
                         else:
                             plac.append((x + i + 1, y))
-                            break
+                            if not (board[x + i + 1][y].model[0] == 'k' and board[x + i + 1][y].model[1] == opponent(color)):
+                                break
                     for i in range(7 - y):
                         if board[x][y + i + 1] == '':
                             plac.append((x, y + i + 1))
                         else:
                             plac.append((x, y + i + 1))
-                            break
+                            if not (board[x][y + i + 1].model[0] == 'k' and board[x][y + i + 1].model[1] == opponent(color)):
+                                break
 
                 elif kind == 'n':  # Knight
                     # board[x-2][y-1], board[x-2][y+1], board[x-1][y+2], board[x+1][y+2], board[x+2][y+1], board[x+2][y-1], board[x+1][y-2], board[x-1][y-2]
@@ -883,7 +890,8 @@ def is_place_occupied(r, t, color):
                                 plac.append((x - i - 1, y - i - 1))
                             else:
                                 plac.append((x - i - 1, y - i - 1))
-                                break
+                                if not (board[x - i - 1][y - i - 1].model[0] == 'k' and board[x - i - 1][y - i - 1].model[1] == opponent(color)):
+                                    break
                         else:
                             break
 
@@ -893,7 +901,8 @@ def is_place_occupied(r, t, color):
                                 plac.append((x - i - 1, y + i + 1))
                             else:
                                 plac.append((x - i - 1, y + i + 1))
-                                break
+                                if not (board[x - i - 1][y + i + 1].model[0] == 'k' and board[x - i - 1][y + i + 1].model[1] == opponent(color)):
+                                    break
                         else:
                             break
 
@@ -903,7 +912,8 @@ def is_place_occupied(r, t, color):
                                 plac.append((x + i + 1, y - i - 1))
                             else:
                                 plac.append((x + i + 1, y - i - 1))
-                                break
+                                if not (board[x + i + 1][y - i - 1].model[0] == 'k' and board[x + i + 1][y - i - 1].model[1] == opponent(color)):
+                                    break
                         else:
                             break
 
@@ -913,7 +923,8 @@ def is_place_occupied(r, t, color):
                                 plac.append((x + i + 1, y + i + 1))
                             else:
                                 plac.append((x + i + 1, y + i + 1))
-                                break
+                                if not (board[x + i + 1][y + i + 1].model[0] == 'k' and board[x + i + 1][y + i + 1].model[1] == opponent(color)):
+                                    break
                         else:
                             break
 
@@ -923,34 +934,41 @@ def is_place_occupied(r, t, color):
                             plac.append((x - i - 1, y))
                         else:
                             plac.append((x - i - 1, y))
-                            break
+                            if not (board[x - i - 1][y].model[0] == 'k' and board[x - i - 1][y].model[1] == opponent(color)):
+                                break
+
                     for i in range(y):
                         if board[x][y - i - 1] == '':
                             plac.append((x, y - i - 1))
                         else:
                             plac.append((x, y - i - 1))
-                            break
+                            if not (board[x][y - i - 1].model[0] == 'k' and board[x][y - i - 1].model[1] == opponent(color)):
+                                break
 
                     for i in range(7 - x):
                         if board[x + i + 1][y] == '':
                             plac.append((x + i + 1, y))
                         else:
                             plac.append((x + i + 1, y))
-                            break
+                            if not (board[x + i + 1][y].model[0] == 'k' and board[x + i + 1][y].model[1] == opponent(color)):
+                                break
                     for i in range(7 - y):
                         if board[x][y + i + 1] == '':
                             plac.append((x, y + i + 1))
                         else:
                             plac.append((x, y + i + 1))
-                            break
+                            if not (board[x][y + i + 1].model[0] == 'k' and board[x][y + i + 1].model[1] == opponent(color)):
+                                break
 
+                    # Bis
                     for i in range(x):
                         if y >= i + 1:
                             if board[x - i - 1][y - i - 1] == '':
                                 plac.append((x - i - 1, y - i - 1))
                             else:
                                 plac.append((x - i - 1, y - i - 1))
-                                break
+                                if not (board[x - i - 1][y - i - 1].model[0] == 'k' and board[x - i - 1][y - i - 1].model[1] == opponent(color)):
+                                    break
                         else:
                             break
 
@@ -960,7 +978,8 @@ def is_place_occupied(r, t, color):
                                 plac.append((x - i - 1, y + i + 1))
                             else:
                                 plac.append((x - i - 1, y + i + 1))
-                                break
+                                if not (board[x - i - 1][y + i + 1].model[0] == 'k' and board[x - i - 1][y + i + 1].model[1] == opponent(color)):
+                                    break
                         else:
                             break
 
@@ -970,7 +989,8 @@ def is_place_occupied(r, t, color):
                                 plac.append((x + i + 1, y - i - 1))
                             else:
                                 plac.append((x + i + 1, y - i - 1))
-                                break
+                                if not (board[x + i + 1][y - i - 1].model[0] == 'k' and board[x + i + 1][y - i - 1].model[1] == opponent(color)):
+                                    break
                         else:
                             break
 
@@ -980,7 +1000,8 @@ def is_place_occupied(r, t, color):
                                 plac.append((x + i + 1, y + i + 1))
                             else:
                                 plac.append((x + i + 1, y + i + 1))
-                                break
+                                if not (board[x + i + 1][y + i + 1].model[0] == 'k' and board[x + i + 1][y + i + 1].model[1] == opponent(color)):
+                                    break
                         else:
                             break
 
@@ -1112,6 +1133,7 @@ def credits():
     menu.add.image(logo_path, scale=(2, 2)).set_margin(0, 30)
     menu.add.label("Programed by me", align=pygame_menu.locals.ALIGN_CENTER, font_size=25)
     menu.add.label("Graphics by me", align=pygame_menu.locals.ALIGN_CENTER, font_size=25)
+    menu.add.label("Stułbia as queen by me", align=pygame_menu.locals.ALIGN_CENTER, font_size=25)
     menu.add.label("Audio by... there aren't any sounds :((", align=pygame_menu.locals.ALIGN_CENTER, font_size=25)
     menu.add.button('Go back', main_menu, font_color=(255, 255, 255), align=pygame_menu.locals.ALIGN_CENTER, background_color=(125, 125, 125))
 
