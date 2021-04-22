@@ -32,6 +32,8 @@ run = False
 menu = pygame_menu.Menu('KumbChess', 800, 600, theme=pygame_menu.themes.THEME_DEFAULT)
 logo_path = os.path.join('img', 'logo.png')
 wnr = 0
+passant_white = [False, False, False, False, False, False, False, False]
+passant_black = [False, False, False, False, False, False, False, False]
 
 
 def nothing():
@@ -146,22 +148,47 @@ def show_legal_moves(x, y):
                     board[x][y] = board[x - 2][y]
                     board[x - 2][y] = wh
 
-            if x > 0 and y > 0 and board[x - 1][y - 1] != '' and board[x - 1][y - 1].model[1] == '1':
-                wh = board[x - 1][y - 1]
-                board[x - 1][y - 1] = board[x][y]
-                board[x][y] = ''
-                if not is_place_occupied(white_king[0], white_king[1], '1'):
-                    places.append((x - 1, y - 1))
-                board[x][y] = board[x - 1][y - 1]
-                board[x - 1][y - 1] = wh
-            if x > 0 and y < 7 and board[x - 1][y + 1] != '' and board[x - 1][y + 1].model[1] == '1':
-                wh = board[x - 1][y + 1]
-                board[x - 1][y + 1] = board[x][y]
-                board[x][y] = ''
-                if not is_place_occupied(white_king[0], white_king[1], '1'):
-                    places.append((x - 1, y + 1))
-                board[x][y] = board[x - 1][y + 1]
-                board[x - 1][y + 1] = wh
+            if x > 0 and y > 0:
+                if board[x - 1][y - 1] != '' and board[x - 1][y - 1].model[1] == '1':
+                    wh = board[x - 1][y - 1]
+                    board[x - 1][y - 1] = board[x][y]
+                    board[x][y] = ''
+                    if not is_place_occupied(white_king[0], white_king[1], '1'):
+                        places.append((x - 1, y - 1))
+                    board[x][y] = board[x - 1][y - 1]
+                    board[x - 1][y - 1] = wh
+                elif board[x - 1][y - 1] == '' and x == 3:
+                    if passant_black[y - 1]:
+                        wh = board[x][y - 1]
+                        board[x - 1][y - 1] = board[x][y]
+                        board[x][y] = ''
+                        board[x][y-1] = ''
+                        if not is_place_occupied(white_king[0], white_king[1], '1'):
+                            places.append((x - 1, y - 1))
+                        board[x][y] = board[x - 1][y - 1]
+                        board[x][y - 1] = wh
+                        board[x-1][y-1] = ''
+
+            if x > 0 and y < 7:
+                if board[x - 1][y + 1] != '' and board[x - 1][y + 1].model[1] == '1':
+                    wh = board[x - 1][y + 1]
+                    board[x - 1][y + 1] = board[x][y]
+                    board[x][y] = ''
+                    if not is_place_occupied(white_king[0], white_king[1], '1'):
+                        places.append((x - 1, y + 1))
+                    board[x][y] = board[x - 1][y + 1]
+                    board[x - 1][y + 1] = wh
+                elif board[x - 1][y + 1] == '' and x == 3:
+                    if passant_black[y + 1]:
+                        wh = board[x][y + 1]
+                        board[x - 1][y + 1] = board[x][y]
+                        board[x][y] = ''
+                        board[x][y + 1] = ''
+                        if not is_place_occupied(white_king[0], white_king[1], '1'):
+                            places.append((x - 1, y + 1))
+                        board[x][y] = board[x - 1][y + 1]
+                        board[x][y + 1] = wh
+                        board[x - 1][y + 1] = ''
         else:  # Black
             if board[x + 1][y] == '':
                 wh = board[x + 1][y]
@@ -180,22 +207,46 @@ def show_legal_moves(x, y):
                     board[x][y] = board[x + 2][y]
                     board[x + 2][y] = wh
 
-            if y > 0 and board[x + 1][y - 1] != '' and board[x + 1][y - 1].model[1] == '0':
-                wh = board[x + 1][y - 1]
-                board[x + 1][y - 1] = board[x][y]
-                board[x][y] = ''
-                if not is_place_occupied(black_king[0], black_king[1], '0'):
-                    places.append((x + 1, y - 1))
-                board[x][y] = board[x + 1][y - 1]
-                board[x + 1][y - 1] = wh
-            if y < 7 and board[x + 1][y + 1] != '' and board[x + 1][y + 1].model[1] == '0':
-                wh = board[x + 1][y + 1]
-                board[x + 1][y + 1] = board[x][y]
-                board[x][y] = ''
-                if not is_place_occupied(black_king[0], black_king[1], '0'):
-                    places.append((x + 1, y + 1))
-                board[x][y] = board[x + 1][y + 1]
-                board[x + 1][y + 1] = wh
+            if y > 0:
+                if board[x + 1][y - 1] != '' and board[x + 1][y - 1].model[1] == '0':
+                    wh = board[x + 1][y - 1]
+                    board[x + 1][y - 1] = board[x][y]
+                    board[x][y] = ''
+                    if not is_place_occupied(black_king[0], black_king[1], '0'):
+                        places.append((x + 1, y - 1))
+                    board[x][y] = board[x + 1][y - 1]
+                    board[x + 1][y - 1] = wh
+                elif board[x + 1][y - 1] == '' and x == 4:
+                    if passant_white[y - 1]:
+                        wh = board[x][y - 1]
+                        board[x + 1][y - 1] = board[x][y]
+                        board[x][y] = ''
+                        board[x][y - 1] = ''
+                        if not is_place_occupied(black_king[0], black_king[1], '0'):
+                            places.append((x + 1, y - 1))
+                        board[x][y] = board[x + 1][y - 1]
+                        board[x][y - 1] = wh
+                        board[x + 1][y - 1] = ''
+            if y < 7:
+                if board[x + 1][y + 1] != '' and board[x + 1][y + 1].model[1] == '0':
+                    wh = board[x + 1][y + 1]
+                    board[x + 1][y + 1] = board[x][y]
+                    board[x][y] = ''
+                    if not is_place_occupied(black_king[0], black_king[1], '0'):
+                        places.append((x + 1, y + 1))
+                    board[x][y] = board[x + 1][y + 1]
+                    board[x + 1][y + 1] = wh
+                elif board[x + 1][y + 1] == '' and x == 4:
+                    if passant_white[y + 1]:
+                        wh = board[x][y + 1]
+                        board[x + 1][y + 1] = board[x][y]
+                        board[x][y] = ''
+                        board[x][y + 1] = ''
+                        if not is_place_occupied(black_king[0], black_king[1], '0'):
+                            places.append((x + 1, y + 1))
+                        board[x][y] = board[x + 1][y + 1]
+                        board[x][y + 1] = wh
+                        board[x + 1][y + 1] = ''
 
     elif kind == 'r':  # Rock
         for i in range(x):
@@ -691,15 +742,33 @@ def move(od, do):
     global white_king
     global black_king
     global winner
+    global passant_white
+    global passant_black
     if od != do:
         if board[od[0]][od[1]] != '':
             if board[do[0]][do[1]] == '' or board[do[0]][do[1]].model[1] != board[od[0]][od[1]].model[1]:
+                passant_white = [False, False, False, False, False, False, False, False]
+                passant_black = [False, False, False, False, False, False, False, False]
                 if board[od[0]][od[1]].model[1] == '0' and board[od[0]][od[1]].model[0] == 'p':
                     if od[0] == 1 and do[0] == 0:
                         board[od[0]][od[1]] = Piece('q0')
                 if board[od[0]][od[1]].model[1] == '1' and board[od[0]][od[1]].model[0] == 'p':
                     if od[0] == 6 and do[0] == 7:
                         board[od[0]][od[1]] = Piece('q1')
+
+                if board[od[0]][od[1]].model[1] == '0' and board[od[0]][od[1]].model[0] == 'p':
+                    if od[0] == 6 and do[0] == 4:
+                        passant_white[od[1]] = True
+                if board[od[0]][od[1]].model[1] == '1' and board[od[0]][od[1]].model[0] == 'p':
+                    if od[0] == 1 and do[0] == 3:
+                        passant_black[od[1]] = True
+
+                if board[od[0]][od[1]].model[0] == 'p' and od[1] != do[1] and board[do[0]][do[1]] == '':
+                    if board[od[0]][od[1]].model[1] == '0':
+                        board[do[0]+1][do[1]] = ''
+                    if board[od[0]][od[1]].model[1] == '1':
+                        board[do[0]-1][do[1]] = ''
+
                 if od == white_king:
                     white_king = do
                 elif od == black_king:
