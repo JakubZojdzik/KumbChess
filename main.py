@@ -9,11 +9,13 @@ import pygame_menu
 
 pygame.init()
 
+#display setup
 fps = 200
 fpsClock = pygame.time.Clock()
-
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
+programIcon = pygame.image.load('img/queen_white.png')
+pygame.display.set_icon(programIcon)
 
 # Game variables
 board = []  # p - pawn, r - rook, n - knight, b - bishop, q - queen, k - king, 0 - white, 1 - black
